@@ -1,0 +1,895 @@
+DROP TABLE IF EXISTS stores;
+CREATE TEMP TABLE stores AS 
+select
+    a.region_id
+    ,a.marketplace_id
+    ,a.merchant_customer_id
+    ,coalesce(a.lister_id,'All') as offer_listing_discriminator
+/*    ,b.legal_entity_id*/
+    ,case when a.marketplace_id = 1 then 'All' else coalesce(a.lister_id,'All') end as lister_id
+    ,a.warehouse_id
+    ,case
+        when a.warehouse_id = 'UGA2' then 'ATL'
+        when a.warehouse_id = 'UTN1' then 'ATL'
+        when a.warehouse_id = 'UNC3' then 'ATL'
+        when a.warehouse_id = 'UGA4' then 'ATL'
+        when a.warehouse_id = 'UNC2' then 'ATL'
+        when a.warehouse_id = 'UMA3' then 'BOS'
+        when a.warehouse_id = 'UMA4' then 'BOS'
+        when a.warehouse_id = 'UCO1' then 'DEN'
+        when a.warehouse_id = 'UTX9' then 'DFW'
+        when a.warehouse_id = 'UTX4' then 'DFW'
+        when a.warehouse_id = 'UTX7' then 'DFW'
+        when a.warehouse_id = 'UTX3' then 'DFW'
+        when a.warehouse_id = 'UTX8' then 'DFW'
+        when a.warehouse_id = 'UNJ1' then 'JFK'
+        when a.warehouse_id = 'UNY4' then 'JFK'
+        when a.warehouse_id = 'UNY2' then 'JFK'
+        when a.warehouse_id = 'UNY5' then 'JFK'
+        when a.warehouse_id = 'JFK2' then 'JFK'
+        when a.warehouse_id = 'UNJ2' then 'JFK'
+        when a.warehouse_id = 'UNY1' then 'JFK'
+        when a.warehouse_id = 'UCA6' then 'LAX'
+        when a.warehouse_id = 'UCA4' then 'LAX'
+        when a.warehouse_id = 'UCA5' then 'LAX'
+        when a.warehouse_id = 'UCA2' then 'LAX'
+        when a.warehouse_id = 'USD1' then 'LAX'
+        when a.warehouse_id = 'ULA6' then 'LAX'
+        when a.warehouse_id = 'UFL6' then 'MIA'
+        when a.warehouse_id = 'UFL4' then 'MIA'
+        when a.warehouse_id = 'UFL5' then 'MIA'
+        when a.warehouse_id = 'UFL2' then 'MIA'
+        when a.warehouse_id = 'UIL1' then 'ORD'
+        when a.warehouse_id = 'UIL2' then 'ORD'
+        when a.warehouse_id = 'UPA1' then 'PHL'
+        when a.warehouse_id = 'UMD1' then 'PHL'
+        when a.warehouse_id = 'UVA1' then 'PHL'
+        when a.warehouse_id = 'UWA1' then 'SEA'
+        when a.warehouse_id = 'UWA4' then 'SEA'
+        when a.warehouse_id = 'UWA6' then 'SEA'
+        when a.warehouse_id = 'UOR2' then 'SEA'
+        when a.warehouse_id = 'UWA2' then 'SEA'
+        when a.warehouse_id = 'UWA5' then 'SEA'
+        when a.warehouse_id = 'UOR1' then 'SEA'
+        when a.warehouse_id = 'UCA1' then 'SFO'
+        when a.warehouse_id = 'USF2' then 'SFO'
+        when a.warehouse_id = 'USF1' then 'SFO'
+        when a.warehouse_id = 'USC1' then 'SFO'
+        when a.warehouse_id = 'USF4' then 'SFO'
+        when a.warehouse_id = 'UAZ1' then 'UAZ1'
+        when a.warehouse_id = 'UNV2' then 'UAZ1'
+        when a.warehouse_id = 'UNV3' then 'UAZ1'
+        when a.warehouse_id = 'UNV1' then 'UAZ1'
+        when a.warehouse_id = 'UOH4' then 'UIN1'
+        when a.warehouse_id = 'UIN1' then 'UIN1'
+        when a.warehouse_id = 'UOH5' then 'UIN1'
+        when a.warehouse_id = 'UWI1' then 'UIN1'
+        when a.warehouse_id = 'UWI2' then 'UIN1'        
+        when a.warehouse_id = 'UMN1' then 'UMN1'
+        when a.warehouse_id = 'UVA4' then 'UVA2'
+        when a.warehouse_id = 'UVA5' then 'UVA2'
+        when a.warehouse_id in ('MAE3', 'MAG4', 'MAJ5', 'MAC1', 'MAC7', 'MAE4', 'MAG3', 'MAJ2', 'MAH2') then 'ORD'
+        when a.warehouse_id in ('MAB3', 'MAF1', 'MAG6', 'MAJ7', 'MAK7','MAX1','MAG5') then 'UVA2'
+        when a.warehouse_id in ('MAC0', 'MAC3', 'MAC4', 'MAF9', 'MAH8', 'MAM7', 'MAB1', 'MAB4', 'MAB5',
+            'MAB9', 'MAC2', 'MAC9', 'MAE6', 'MAG1', 'MAB8', 'MAF3', 'MAF4','MAK9') then'LAX'
+        when a.warehouse_id in ('MAF7','MAH0') then 'PHL'
+        when a.warehouse_id in ('MAB2', 'MAB7', 'MAB6', 'MAI1') then 'SEA'
+        when a.warehouse_id in ('MAK3', 'MAI6') then 'JFK'
+        else 'other' 
+    end as zip_region
+    ,concat(a.marketplace_id,a.merchant_customer_id) as mktplc_merchant_concat
+    ,CASE
+        WHEN a.warehouse_id in (    'MAB1','MAB4','MAB5','MAB6','MAB9','MAC1','MAC2','MAC7','MAC9','MAE4',
+    'MAE6','MAF1','MAF7','MAG1','MAG3','MAG6') then 'MENDEL'
+    	when a.warehouse_id in (    'IBF1','IBF7','IDC4','MAB2','MAB3','MAB7','MAB8','MAC0','MAC3','MAC4',
+    'MAE3','MAF3','MAF4','MAF9','MAG4','MAG5','MAH0','MAH2','MAH8','MAI1',
+    'MAI6','MAJ2','MAJ5','MAJ7','MAK3','MAK7','MAK9','MAM7','MAX1') then 'GRACE'
+        /*b.marketplace_id = 884070040 THEN 'AFS'
+        WHEN b.site_id ilike 'MA%' THEN 'AFS Online'*/
+        ELSE 'AFO'
+    END as concept  
+    ,b.legal_entity_id
+from andes.olive.store_attributes a
+inner join andes.prcbi_ddl.o_rz_legal_entities b on
+/*    case when a.marketplace_id = 1 then
+        a.merchant_customer_id = b.merchant_id
+        and a.marketplace_id = b.marketplace_id
+    else*/
+        a.merchant_customer_id = b.merchant_id
+        and a.marketplace_id = b.marketplace_id
+        and a.lister_id = b.lister_id
+/*    end */
+WHERE
+    a.region_id = 1
+    AND a.marketplace_id in (1071830, 884070040)
+    /*AND a.marketplace_id in (1, 1071830, 884070040)*/
+    AND a.country_code = 'US'
+    AND a.currency_code = 'USD'
+    AND a.is_3p = 'N'
+    AND a.is_wfm = 'N'
+    AND a.is_hub = 'N'
+    AND a.is_active ='Y'
+    AND COALESCE(a.store_format,'N') in (
+        'MENDEL',
+        'MALONE',
+        'UFF',
+        'N'
+        )
+    AND (a.store_format is not null and a.alm_group_name is null
+        or a.store_format is null and a.alm_group_name is not null
+        or a.store_format is not null and a.alm_group_name is not null)
+    AND date_part(y, a.launch_date) < 2023
+    AND COALESCE(trunc(a.closure_date),DATEADD(d,2,current_date)) > current_date
+    AND COALESCE(a.lister_id,'N') not in ('JIHM_US-WA-28','JIHM_US-WI-6')
+GROUP BY
+    a.region_id
+    ,a.marketplace_id
+    ,a.merchant_customer_id
+    ,b.legal_entity_id
+    ,a.lister_id
+    ,a.warehouse_id   
+;
+
+DROP TABLE IF EXISTS pricing;
+CREATE TEMP TABLE pricing AS 
+SELECT
+    a.ASIN
+    ,a.marketplace_id
+    ,a.merchant_customer_id
+    ,coalesce(a.lister_id,'All') as lister_id
+    ,a.our_price as current_price
+    ,a.start_datetime as current_start_time
+    ,a.end_datetime 
+    ,case 
+        when a.source_id = 'POOC' THEN 'Base Pricing'
+        when a.source_id = 'PRZ' THEN 'Competitive Match'
+        when a.source_id = 'PAWS' THEN 'PAWS Promotion'
+        when a.source_id = 'PROMOTIONS_PR' THEN 'PAWS Promotion'
+        when a.source_id like 'PROMOTIONS%' THEN 'PAWS Promotion'
+        when a.source_id = 'MPO' THEN 'Manual Price Override'
+        else a.source_id end as pricing_driver
+    ,cast('https://na.pricingrules.pricing.amazon.dev/item.html?legalEntityId=' as VARCHAR)+CAST(b.legal_entity_id as VARCHAR) + CAST('&sku=' as VARCHAR) + a.asin as pricing_rules_url    
+    ,b.warehouse_id as site_id
+    ,ROW_NUMBER() OVER 
+        (PARTITION BY a.marketplace_id, a.merchant_customer_id, a.lister_id, a.asin
+            ORDER BY a.start_datetime DESC) as daterow 
+FROM andes.f3edw.fact_asin_price_history a
+INNER JOIN stores b ON
+    a.merchant_customer_id = b.merchant_customer_id
+    and a.lister_id = b.lister_id
+WHERE
+    a.region_id = 1
+    AND a.marketplace_id = 884070040
+    AND is_retail = 'Y'
+    AND a.end_datetime is null
+GROUP BY
+    a.ASIN
+    ,a.marketplace_id
+    ,a.merchant_customer_id
+    ,a.lister_id
+    ,a.our_price
+    ,a.start_datetime
+    ,a.end_datetime 
+    ,a.source_id  
+    ,a.our_price
+    ,a.start_datetime
+    ,a.end_datetime 
+    ,b.legal_entity_id
+    ,b.warehouse_id
+;
+
+DROP TABLE IF EXISTS stores;
+
+DROP TABLE IF EXISTS final_table;
+CREATE TEMP TABLE final_table AS 
+select
+    left(a.asin_list,10) as asin,
+    coalesce(b.f3_vertical,c.f3_vertical,b.fresh_vertical,c.fresh_vertical) as f3_vertical,    
+    COALESCE(b.f3_category_group,c.f3_category_group) as f3_category_group,   
+    COALESCE(b.brand_name,c.brand_name) as brand_name,    
+    COALESCE(g.f3_vendor,b.brand_name,c.brand_name) as vendor,
+    coalesce(b.manufacturer_code,c.manufacturer_code,b.owning_vendor_code,c.owning_vendor_code) as vendor_code,
+    CASE 
+        WHEN j.vendor_type = 'MANUFACTURER' THEN 'Vendor'
+        WHEN j.vendor_type = 'WHOLESALER' THEN 'Distributor'
+        WHEN j.vendor_type is null THEN 'Vendor'
+        ELSE j.vendor_type
+    END AS "Vendor/Distributor",    
+    case 
+        when h.vendor_owner = 'Unmanaged' then f.f3_vm 
+        when h.vendor_owner = 'unmanaged' then f.f3_vm 
+        else COALESCE(h.vendor_owner,f.f3_vm) end as vendor_owner,
+    COALESCE(f.f3_vm,h.vendor_owner) as vm,  
+    'https://t.corp.amazon.com/' + sim_issue_alias as sim,
+    case 
+    	when a.root_cause = 'PAWS ID Accurate, potential ESL error' then 'potential ESL error'
+    	when a.root_cause = 'PAWS ID accurate, potential Pricing error' then 'potential Pricing error'
+    	when a.root_cause = 'PAWS ID Accurate, potential Pricing error' then 'potential Pricing error'
+    	when a.root_cause = 'Non promo, potential pricing error' then 'potential Pricing error'        
+    else COALESCE(a.root_cause,'Root Cause In Progress') end as root_cause,
+    case  
+        WHEN a.root_cause = 'Good Competitor Match' then 0
+        when a.root_cause ilike '%Red ESL banner not present (expected)%' then 0
+        WHEN a.root_cause ilike '%False%Positive%' then 0
+        when a.root_cause like '%No Issue%' then 0
+        WHEN a.root_cause like '%No Error%' then 0
+        when a.root_cause ilike '%False Alarm%' then 0
+        when a.root_cause ilike '%False%' then 0
+        when a.root_cause ilike '%ClownCar - Test%' then 0
+        when a.root_cause ilike '%Not within Promo team scope%' then 0
+        when a.root_cause ilike '%Duplicate%' then 0
+        when a.root_cause ilike '%SIM Lacking Information%' then 0        
+        when a.root_cause like '%Unresolved%' then 0        
+        when a.root_cause ilike '%Root Cause Unidentified%' then 0                 
+        when a.root_cause like '%Ticket incorrectly cut (no error)%' then 0
+        when a.root_cause like  '%No Error (Ticket Incorrectly Cut/Testing)%' then 0
+        when a.root_cause ilike '%Auto-resolved by policy%' then 0
+        else 1
+        end as defect,
+    case
+        /* Price Errors*/
+        /*base price*/
+        WHEN a.root_cause ilike '%Base Price%' then 'Price Error (Cost Driven)'       
+        WHEN a.root_cause ilike '%Price Disabled List%' then 'Price Error (Cost Driven)'        
+      /*cost errors*/        
+        WHEN a.root_cause ilike '%Bad Cost%' then 'Price Error (Cost Driven)'
+        WHEN a.root_cause ilike '%price added%' then 'Price Error (Cost Driven)' 
+        WHEN a.root_cause ilike '%Other (Cost Driven)%' then 'Price Error (Cost Driven)' 
+        /*s-algo*/
+        WHEN a.root_cause ilike '%SALGO%' then 'Price Error (Comp Driven)'          
+        WHEN a.root_cause ilike '%S-ALGO%' then 'Price Error (Comp Driven)' 
+        /*Comp Match */
+        WHEN a.root_cause ilike '%Competitive Match%' then 'Price Error (Comp Driven)'                  
+        WHEN a.root_cause ilike '%Competitor Match%' then 'Price Error (Comp Driven)'
+        WHEN a.root_cause ilike '%Other (Competitor Driven)%' then 'Price Error (Comp Driven)'  
+        /*markdown*/
+        WHEN a.root_cause ilike '%Price Error - Markdown%' then 'Price Error - Markdown'
+        WHEN a.root_cause ilike '%Manual Markdown Request%' then 'Manual Markdown Request' 
+        /*line pricing*/     
+        WHEN a.root_cause ilike '%ASIN line priced but not included%' then 'ASIN line priced but not included'
+        WHEN a.root_cause ilike '%ASIN line priced to another line%' then 'ASIN line priced to another line'
+        WHEN a.root_cause ilike '%ASIN not line priced%' then 'ASIN not line priced'
+        WHEN a.root_cause ilike '%ASINs incorrectly mapped together%' then 'ASINs incorrectly mapped together'
+        WHEN a.root_cause ilike '%Line%' then 'Line Price Error'
+        WHEN a.root_cause ilike '%Teenager%' then 'Line Price Error'                 
+        /*general price errors - pre breakout*/
+        WHEN a.root_cause ilike '%Price Error%' then 'Price Error'          
+        /*variable weight errors*/
+        WHEN a.root_cause like 'Variable Weight%' then 'Variable Weight Error'          
+        /*catalog errors */
+        WHEN a.root_cause like '%UPC added' then 'UPC added'
+        WHEN a.root_cause like '%UPC/ASIN collision' then 'UPC/ASIN collision'
+        WHEN a.root_cause like 'Catalog%' then 'Catalog Error'
+   
+        /*unknown item - mis-ships*/
+        WHEN a.root_cause like 'Unknown Item%' then 'Mis-ship'
+        WHEN a.root_cause like '%Mis-ship%' then 'Mis-ship'
+        /*esl errors for promos*/
+        WHEN a.root_cause ilike 'Red ESL banner not present%' THEN 'ESL/Price Delay Error'
+
+        /*esl errors for general pricing*/   
+		WHEN a.root_cause ilike '%ESL messaging%' THEN 'Incorrect ESL messaging used'  
+        WHEN a.root_cause ilike '%ESL%' then 'ESL/Price Delay Error'  
+        /*tax errors*/
+        WHEN a.root_cause ilike '%Tax%' then 'Tax Error'  
+		/*paws creation errors*/        
+        when a.root_cause ilike '%not scheduled%' then 'PAWS ID not scheduled'
+        /*physical signage*/
+        WHEN a.root_cause ilike '%In-Store promo signage%' then 'Instore Signage Error'          
+        WHEN a.root_cause ilike '%In-Store Signage%' then 'Instore Signage Error'   
+        WHEN a.root_cause ilike '%Physical Signage%' then 'Instore Signage Error'  
+        /*promo asins not on planogram*/
+        WHEN a.root_cause ilike '%not on Planogram%' then 'ASIN NOP'   
+        WHEN a.root_cause ilike '%NOP' then 'ASIN NOP'
+        /*promo asins not in stock*/
+        WHEN a.root_cause like '%OOS' then 'ASIN OOS'
+		/*paws creation errors*/
+        when a.root_cause ilike 'Instore Price higher than advertised (Other Pricing Driver)' then 'Instore Price higher than advertised (Other Pricing Driver)'
+        when a.root_cause ilike 'Instore Price lower than advertised (Other Pricing Driver)' then 'Instore Price lower than advertised (Other Pricing Driver)'  
+        when a.root_cause ilike '%potential pricing error%' then 'Instore Price higher/lower than advertised (Other Pricing Driver)'     
+        when a.root_cause ilike '%Instore Price higher%' then 'Instore Price higher than advertised (Manual error)'
+        when a.root_cause ilike '%Instore Price lower%' then 'Instore Price lower than advertised (Manual error)'
+        when a.root_cause ilike 'Lister ID not added%' then 'Promo missing store Lister/Merchant'
+        when a.root_cause ilike '%missing store Lister/Merchant%' then 'Promo missing store Lister/Merchant'
+        when a.root_cause ilike '%missing Merchant%' then 'Promo missing store Lister/Merchant'
+        when a.root_cause ilike '%missing store Lister%' then 'Promo missing store Lister/Merchant'           
+        when a.root_cause ilike '%PAWS ID not created%' then 'Promo not created' 
+		when a.root_cause ilike '%PAWS ID State%' then 'Promo Start or End date not accurate'
+		when a.root_cause ilike '%PAWS ID Start%' then 'Promo Start or End date not accurate'	
+		when a.root_cause ilike '%PAWS ID end%' then 'Promo Start or End date not accurate'	
+		when a.root_cause ilike '%End date not accurate%' then 'Promo Start or End date not accurate'
+        when a.root_cause ilike '%Promo Start%' then 'Promo Start or End date not accurate'
+        when a.root_cause ilike '%Promo State%' then 'Promo Start or End date not accurate'
+        when a.root_cause ilike '%Promo End%' then 'Promo Start or End date not accurate'   
+        when a.root_cause like 'PAWS Price in PAWS ID not accurate' then 'PAWS Creation Error' 
+
+        /*promo inputs in CPP errors*/
+        when a.root_cause ilike '%Operational%' then 'Promotional Input Error'         
+        when a.root_cause ilike '%Promotional Input Error%' then 'Promotional Input Error'  
+        when a.root_cause ilike '%not requested%' then 'Promo not requested'   
+        /*tech errors*/
+        when a.root_cause like 'Tech Issue' then 'Tech Error'         
+        when a.root_cause like 'Tech Error' then 'Tech Error'          
+        when a.root_cause ilike '%Overlapping%' then 'Overlapping Promotions'
+        
+        /*SIM lacking information from store */
+        when a.root_cause like 'SIM Lacking Information' then 'SIM Lacking Information'         
+        when a.root_cause like 'Unresolved%' then 'SIM Lacking Information'         
+        when a.root_cause ilike 'Root Cause Unidentified%' then 'SIM Lacking Information'                 
+        when a.root_cause like 'Ticket incorrectly cut (no error)' then 'SIM Lacking Information'
+        when a.root_cause like  'No Error (Ticket Incorrectly Cut/Testing)' then 'SIM Lacking Information'
+        when a.root_cause ilike '%Auto-resolved by policy%' then 'SIM Lacking Information'
+        /*duplicate tickets submitted for promo errors*/
+        when a.root_cause like 'Duplicate%' then 'Duplicate Ticket'                 
+        /*root cause not inputted into sim yet / unknown root cause */
+        when a.root_cause is null then 'Root Cause In Progress'  
+        else 'Other'
+        end as defect_type,
+    pricing_rules_url,    
+    left(a.site,4) as site_id,
+    current_price,
+    TRUNC(current_start_time) AS price_start_date,
+    pricing_driver,
+    trunc(a.create_date) as sim_create_date,
+/*    case when a.resolved_date is null then
+        datediff(day,a.create_date,current_date) 
+        else datediff(day,a.create_date,a.resolved_date) 
+        end as days_open,*/
+    case when a.assigned_date is null then
+        case when a.resolved_date is null then
+            (DATEDIFF('day', a.create_date, current_date))
+          -(DATEDIFF('week',a.create_date, current_date) * 2)
+          -(CASE WHEN DATE_PART(dow, a.create_date) = 0 THEN 1 ELSE 0 END)
+          -(CASE WHEN DATE_PART(dow, current_date) = 6 THEN 1 ELSE 0 END)
+          +(CASE 
+          WHEN DATE_PART(dow, a.create_date) = 6 THEN 1 
+          WHEN DATE_PART(dow, a.create_date) = 0 THEN 1 
+          ELSE 0 END)
+        else 
+        (DATEDIFF('day', a.create_date, a.resolved_date))
+          -(DATEDIFF('week',a.create_date, a.resolved_date) * 2)
+          -(CASE WHEN DATE_PART(dow, a.create_date) = 0 THEN 1 ELSE 0 END)
+          -(CASE WHEN DATE_PART(dow, a.resolved_date) = 6 THEN 1 ELSE 0 END)
+          +(CASE 
+          WHEN DATE_PART(dow, a.create_date) = 6 THEN 1 
+          WHEN DATE_PART(dow, a.create_date) = 0 THEN 1 
+          ELSE 0 END)
+        end
+        else 
+         (DATEDIFF('day', a.create_date, a.assigned_date))
+          -(DATEDIFF('week',a.create_date, a.assigned_date) * 2)
+          -(CASE WHEN DATE_PART(dow, a.create_date) = 0 THEN 1 ELSE 0 END)
+          -(CASE WHEN DATE_PART(dow, a.assigned_date) = 6 THEN 1 ELSE 0 END)
+          +(CASE 
+          WHEN DATE_PART(dow, a.create_date) = 6 THEN 1 
+          WHEN DATE_PART(dow, a.create_date) = 0 THEN 1 
+          ELSE 0 END)
+        end as first_response_sla_days,
+    trunc(a.assigned_date) as assigned_date,
+    
+    /*
+    a.region as site_desc,
+    a.impact as severity,
+    f.f3_mvm as mvm,
+    a.pending_reason,
+    a.closure_code,
+    a.resolution, 
+    a.root_cause_details,
+    a.short_description
+    */
+    
+    /*
+    
+    Catalog SOP
+        How to search: https://w.amazon.com/bin/view/SMX/SelectionCentral/UserGuideNext/Contributions_Search/
+        How to edit: https://w.amazon.com/bin/view/SMX/SelectionCentral/UserGuideNext/EditingAContribution/    
+    
+    Cost SOP
+    1. Validate item setup in Selection Central (can use retail assistant to pull in attributes)
+    •Items per inner pack (IPIP)
+    •Items per master pack (IPMP)
+    •If item setup is valid proceed to Step 2
+     How to search: https://w.amazon.com/bin/view/SMX/SelectionCentral/UserGuideNext/Contributions_Search/
+            
+    2. Validate cost with the vendor and ensure it matches the cost in Unified Cost Portal (can use retail assistant to pull in cost) at https://w.amazon.com/bin/view/VendorCostSystem/UnifiedCostPortalGuide/
+    
+    3. Other helpful links
+    •Cost wiki: https://w.amazon.com/bin/view/F3_Product_Cost/
+    •Vendor Cost Submission History https://prod.cost.vendors.a2z.com/
+    •Cost Lookup https://cost.amazon.com/costManagement/costLookup
+    •Procurement Portal https://buyingportal-us.amazon.com/gp/ors/procurement_home.html
+
+    UPC Add
+        How to search: https://w.amazon.com/bin/view/SMX/SelectionCentral/UserGuideNext/Contributions_Search/
+        How to edit: https://w.amazon.com/bin/view/SMX/SelectionCentral/UserGuideNext/EditingAContribution/
+    
+    Collision SOP
+        https://w.amazon.com/bin/view/F3/Catalog/Identity/ASIN-Collision/ 
+        
+    tax SOP
+        crv/bottle bills:
+        This tax is driven purely off of selection central attributes. 
+        For a list of the applicable attributes and their values see https://w.amazon.com/bin/view/Consumables/Grocery/SME/BottleBills#HBottleBillASINSetup
+        selection central
+            How to search: https://w.amazon.com/bin/view/SMX/SelectionCentral/UserGuideNext/Contributions_Search/
+            How to edit: https://w.amazon.com/bin/view/SMX/SelectionCentral/UserGuideNext/EditingAContribution/
+        
+        Liquor classifications, Sugar taxes: Please file a SIM via https://sim.amazon.com/issues/create?template=9c3dbe61-aa5f-4149-8213-e972c82ba61f
+        
+    price add
+        Adding to a selection list SOP: https://w.amazon.com/bin/view/F3AST/UserGuide/SelectionLists/#HAddingItemstoaList
+        Setting status SOP: https://w.amazon.com/bin/view/F3AST/UserGuide/SourcingGrid/#HAssignments
+        
+    variable weight
+        https://w.amazon.com/bin/view/F3AST/UserGuide/VariableWeight/
+    */
+    trunc(a.modified_date) as sim_last_response_date,
+    a.assigned_to_individual,
+    a.requester_login,
+    a.requester_name,
+    a.status,
+    trunc(a.resolved_date) as resolved_date,
+    a.resolved_by
+    ,case when a.resolved_date is null then 'N' else 'Y' end as resolved_filter
+    ,case when a.type = 'Pricing' then 'Pricing' else 'Promotions' end as owner
+    ,case when trunc(a.create_date) >= date_trunc('week',DATEADD(w,-52,current_date)) then 'Y' else 'N' end as with_52_weeks
+    
+    ,DATE_PART(week,a.create_date) as week_number
+    /*,DATE_PART(year,a.create_date) as year*/
+
+    ,case 
+        when trunc(a.create_date) between DATE_TRUNC('week',date_trunc('month',a.create_date))
+            and dateadd(d,6,DATE_TRUNC('week',date_trunc('month',a.create_date))) then
+                case when (datediff(day,date_trunc('month', a.create_date),dateadd(d,6,DATE_TRUNC('week',date_trunc('month', a.create_date))))+1)>3 then 
+            
+                        date_part(year,a.create_date)
+                    else date_part(year,dateadd(month,-1,a.create_date))
+                    end
+        when trunc(a.create_date) between DATE_TRUNC('week',date_trunc('month', dateadd(month, 1,a.create_date)))
+            and dateadd(d,6,DATE_TRUNC('week',date_trunc('month', dateadd(month, 1,a.create_date)))) then
+                case when (datediff(day,DATE_TRUNC('week',date_trunc('month', dateadd(month, 1,a.create_date))),dateadd(d,-1,date_trunc('month', dateadd(month, 1,a.create_date))))+1)>3 then 
+                        date_part(year,a.create_date)
+                    else date_part(year,dateadd(month,1,a.create_date))
+                    end
+        else date_part(year,a.create_date)
+        end as year
+
+    ,case when len(date_part(week,trunc(a.create_date))) <2 then concat(year,concat('0',week_number))
+        else concat(year,week_number)
+        end as fscl_wk
+    
+    ,case when trunc(a.create_date) between date_trunc('week',DATEADD(w,-1,current_date))
+                                and dateadd(d,-1,date_trunc('week',current_date))
+        then 'Y' else 'N' end as last_week_filter
+        
+    ,case when trunc(a.create_date) between date_trunc('week',DATEADD(w,-2,current_date))
+                                and dateadd(d,-1,date_trunc('week',DATEADD(w,-1,current_date)))
+        then 'Y' else 'N' end as prev_week_filter
+
+    ,case when trunc(a.create_date) between date_trunc('week',DATEADD(w,-8,current_date))
+                                and dateadd(d,-1,date_trunc('week',current_date)) then 'Y' 
+          when trunc(a.create_date) between date_trunc('week',DATEADD(w,-60,current_date))
+                                and dateadd(d,-1,date_trunc('week',DATEADD(w,-52,current_date))) then 'Y'         
+        else 'N' end as last_8weeks_filter
+
+/*    these are not adjusted to reoncile mpr allocated months (month must have 4 days in a week to be counted)
+
+    ,case when trunc(a.create_date) between DATE_TRUNC('week',dateadd(month, -2, date_trunc('month', current_date)))
+            and dateadd(d,6,DATE_TRUNC('week',date_trunc('month', current_date)))
+                then 'Y' else 'N' end as last_2_months_filter
+    
+    ,case when trunc(a.create_date) between DATE_TRUNC('week',dateadd(month, -1, date_trunc('month', current_date)))
+            and dateadd(d,6,DATE_TRUNC('week',date_trunc('month', current_date)))
+                then 'Y' else 'N' end as last_month_filter
+    
+    ,case when trunc(a.create_date) between DATE_TRUNC('week',dateadd(month, -13, date_trunc('month', current_date)))
+        and dateadd(d,6,DATE_TRUNC('week',date_trunc('month', dateadd(month, -12, current_date))))
+        then 'Y' else 'N' end as last_year_month_filter
+
+ ,case when trunc(a.create_date) between DATE_TRUNC('week',dateadd(month, -2, date_trunc('month', current_date)))
+            and dateadd(d,-1,DATE_TRUNC('week',date_trunc('month', current_date)))
+                then 'Y' else 'N' end as prev_month_filter*/
+
+    ,case when trunc(a.create_date) between date_trunc('week',DATEADD(w,-53,current_date))
+        and dateadd(d,-1,date_trunc('week',DATEADD(w,-52,current_date)))
+            then 'Y' else 'N' end as last_year_week_filter
+            
+    ,case when trunc(a.create_date) between date_trunc('week',DATEADD(w,-54,DATEADD(w,-1,current_date)))
+        and dateadd(d,-1,date_trunc('week',DATEADD(w,-53,DATEADD(w,-1,current_date))))
+            then 'Y' else 'N' end as prev_year_week_filter
+    
+    ,case 
+        when trunc(a.create_date) between DATE_TRUNC('week',date_trunc('month',a.create_date))
+            and dateadd(d,6,DATE_TRUNC('week',date_trunc('month',a.create_date))) then
+                case when (datediff(day,date_trunc('month', a.create_date),dateadd(d,6,DATE_TRUNC('week',date_trunc('month', a.create_date))))+1)>3 then 
+            
+                        date_part(month,a.create_date)
+                    else date_part(month,dateadd(month,-1,a.create_date))
+                    end
+        when trunc(a.create_date) between DATE_TRUNC('week',date_trunc('month', dateadd(month, 1,a.create_date)))
+            and dateadd(d,6,DATE_TRUNC('week',date_trunc('month', dateadd(month, 1,a.create_date)))) then
+                case when (datediff(day,DATE_TRUNC('week',date_trunc('month', dateadd(month, 1,a.create_date))),dateadd(d,-1,date_trunc('month', dateadd(month, 1,a.create_date))))+1)>3 then 
+                        date_part(month,a.create_date)
+                    else date_part(month,dateadd(month,1,a.create_date))
+                    end
+        else date_part(month,a.create_date)
+        end as mpr_month_pre
+        
+    ,case 
+        when current_date between DATE_TRUNC('week',date_trunc('month',current_date))
+            and dateadd(d,6,DATE_TRUNC('week',date_trunc('month',current_date))) then
+                case when (datediff(day,date_trunc('month', current_date),dateadd(d,6,DATE_TRUNC('week',date_trunc('month', current_date))))+1)>3 then 
+            
+                        date_part(month,current_date)
+                    else date_part(month,dateadd(month,-1,current_date))
+                    end
+        when current_date between DATE_TRUNC('week',date_trunc('month', dateadd(month, 1,current_date)))
+            and dateadd(d,6,DATE_TRUNC('week',date_trunc('month', dateadd(month, 1,current_date)))) then
+                case when (datediff(day,DATE_TRUNC('week',date_trunc('month', dateadd(month, 1,current_date))),dateadd(d,-1,date_trunc('month', dateadd(month, 1,current_date))))+1)>3 then 
+                        date_part(month,current_date)
+                    else date_part(month,dateadd(month,1,current_date))
+                    end
+        else date_part(month,current_date)
+        end as mpr_month_today
+        
+    ,DATE_TRUNC('week',dateadd(month, -1, date_trunc('month', current_date))) as first_day_last_month_week_start
+    ,dateadd(d,6,DATE_TRUNC('week',date_trunc('month', current_date))) as last_day_last_month_week_end    
+     
+    ,DATE_TRUNC('week',dateadd(month, -2, date_trunc('month', current_date))) as first_day_prev_month_week_start
+    ,dateadd(d,6,DATE_TRUNC('week',date_trunc('month', dateadd(month, -1,current_date))))as last_day_prev_month_week_end 
+    
+    ,DATE_TRUNC('week',dateadd(month, -8, date_trunc('month', current_date))) as first_day_8_month_week_start
+    
+    ,DATE_TRUNC('week',dateadd(month, -20, date_trunc('month', current_date))) as ly_first_day_8_month_week_start 
+    
+    ,dateadd(d,6,DATE_TRUNC('week',date_trunc('month', dateadd(month,-12,current_date)))) as ly_last_day_last_month_week_end   
+    ,DATE_TRUNC('week',date_trunc('month', dateadd(month,-13,current_date))) as ly_first_day_last_month_week_start
+    
+    ,DATE_TRUNC('week',date_trunc('month', dateadd(month,-14,current_date))) as ly_first_day_prev_month_week_start
+    ,dateadd(d,6,DATE_TRUNC('week',date_trunc('month', dateadd(month, -13,current_date))))as ly_last_day_prev_month_week_end 
+    ,coalesce(replace(a.last_modified_by,'@amazon.com', ''), a.last_modified_by) as last_modified_by
+    /*,coalesce(b.item_name,c.item_name) as item_name*/
+    ,coalesce(coalesce(replace(b.item_name,',', ''), b.item_name),coalesce(replace(c.item_name,',', ''), c.item_name)) as item_name
+from andes_ext.aim.o_remedy_sim_tickets a
+left join andes.f3edw.dim_asin_v1 b on
+    left(a.asin_list,10) = b.asin
+    and b.marketplace_id = 884070040
+left join andes.f3edw.dim_asin_v1 c on
+    left(a.asin_list,10) = c.asin
+    and c.marketplace_id = 1
+LEFT JOIN andes."f3-selection-feast-prod".f3_category_mapping f ON 
+    coalesce(b.f3_category_group,c.f3_category_group) = f.f3_category_group
+    AND coalesce(b.f3_category,c.f3_category) = f.f3_category
+    AND coalesce(b.f3_subcategory,c.f3_subcategory) = f.f3_subcategory
+LEFT JOIN andes.f3rbi.f3_vendor_mapping g ON
+    left(a.asin_list,10) = g.asin    
+LEFT JOIN andes.f3rbi.vm_ownership_matrix h ON
+    COALESCE(g.f3_vendor,b.brand_name,c.brand_name) = h.vendor
+left join pricing i on
+    left(a.asin_list,10) = i.asin
+    and left(a.site,4) = i.site_id
+    and i.daterow = 1
+left join andes.f3edw.dim_vendor j on
+    coalesce(b.manufacturer_code,c.manufacturer_code,b.owning_vendor_code,c.owning_vendor_code) = j.vendor_code
+    and j.region_id = 1
+where 
+    a.is_deleted = 'false'
+    and a.is_sim = 'true'
+    and concat(category,concat(type,item)) in ('MendelPricingAll', 'MendelMarketing & MerchandisingCircular')
+    /*
+    and category = 'Mendel'
+    and type = 'Pricing'
+    and item = 'All'
+    and category = 'Mendel'
+    and type = 'Marketing & Merchandising'
+    and item = 'Circular'    
+    
+    and a.status not in ('Closed','Resolved') */
+    and trunc(a.create_date) >= dateadd(d,-730,date_trunc('week',DATEADD(w,-1,TO_DATE('{RUN_DATE_YYYYMMDD}','YYYYMMDD'))))
+group by
+    a.status,
+    a.asin_list,
+    b.item_name,
+    c.item_name,
+    b.f3_vertical,
+    c.f3_vertical,    
+    b.f3_category_group,
+    c.f3_category_group,   
+    b.brand_name,
+    c.brand_name,    
+    g.f3_vendor,
+    b.brand_name,
+    c.brand_name,
+    b.manufacturer_code,
+    c.manufacturer_code,
+    b.owning_vendor_code,
+    c.owning_vendor_code,
+    j.vendor_type,    
+    h.vendor_owner,
+    f.f3_vm,  
+    sim_issue_alias,
+    a.root_cause,
+    pricing_rules_url,    
+    a.site,
+    current_price,
+    current_start_time,
+    pricing_driver,
+    a.create_date,
+    a.modified_date,
+    a.last_modified_by,
+    a.assigned_to_individual,
+    a.requester_login,
+    a.requester_name,
+    a.resolved_date,
+    a.resolved_by,
+    a.type,
+    a.assigned_date,
+    b.fresh_vertical,
+    c.fresh_vertical
+;
+
+DROP TABLE IF EXISTS pricing;
+
+select
+    a.sim
+    ,a.defect
+    ,a.sim_create_date
+    ,a.first_response_sla_days
+    ,a.assigned_date
+    ,a.sim_last_response_date
+    ,a.assigned_to_individual
+    ,a.requester_login
+    ,a.requester_name
+    ,a.status
+    ,a.resolved_date
+    ,a.resolved_by
+    ,a.resolved_filter
+    ,a.owner
+	,a.asin
+    ,a.f3_vertical
+    ,a.f3_category_group
+    ,a.brand_name
+    ,a.vendor
+    ,a.vendor_code
+    ,a."Vendor/Distributor"  
+    ,a.vendor_owner
+    ,a.vm
+    ,a.pricing_rules_url
+    ,a.site_id
+    ,a.current_price
+    ,a.price_start_date
+    ,a.pricing_driver
+    ,a.with_52_weeks
+    ,a.week_number
+    ,a.year
+    ,a.fscl_wk
+    ,a.last_week_filter
+    ,a.prev_week_filter
+    ,a.last_8weeks_filter
+    ,a.last_year_week_filter
+    ,a.prev_year_week_filter
+    ,a.mpr_month_pre
+    ,a.mpr_month_today
+    ,a.first_day_last_month_week_start
+    ,a.last_day_last_month_week_end    
+    ,a.first_day_prev_month_week_start
+    ,a.last_day_prev_month_week_end 
+    ,a.first_day_8_month_week_start
+    ,a.ly_first_day_8_month_week_start 
+    ,a.ly_last_day_last_month_week_end   
+    ,a.ly_first_day_last_month_week_start
+    ,a.ly_first_day_prev_month_week_start
+    ,a.ly_last_day_prev_month_week_end 
+    ,case mpr_month_pre
+        when '1' then 'January'
+        when '2' then 'February'
+        when '3' then 'March'
+        when '4' then 'April'
+        when '5' then 'May'
+        when '6' then 'June'
+        when '7' then 'July'
+        when '8' then 'August'
+        when '9' then 'September'
+        when '10' then 'October'
+        when '11' then 'November'
+        when '12' then 'December'
+    end as mpr_month
+
+
+   
+
+        
+        ,case 
+    /*price errors */            
+            WHEN a.defect_type = 'Price Error (Cost Driven)' then 'Price Error'
+        	WHEN a.defect_type = 'Price Error (Comp Driven)' then 'Price Error'
+        	WHEN a.defect_type = 'Price Error - Markdown' then 'Price Error'
+        	WHEN a.defect_type = 'Price Error' then 'Price Error'
+    /*variable weight errors */                 
+    		WHEN a.defect_type = 'Variable Weight Error' then 'Variable Weight Error'
+    /*line errors */            
+            WHEN a.defect_type = 'ASIN line priced but not included' then 'Line Error'
+        	WHEN a.defect_type = 'ASIN line priced to another line' then 'Line Error'
+        	WHEN a.defect_type = 'ASIN not line priced' then 'Line Error'
+        	WHEN a.defect_type = 'Line Price Error' then 'Line Error'
+        	WHEN a.defect_type = 'ASINs incorrectly mapped together' then 'Line Error'
+    /*catalog errors */ 
+        	WHEN a.defect_type = 'UPC added' then 'Catalog Error'
+        	WHEN a.defect_type = 'UPC/ASIN collision' then 'Catalog Error'
+        	WHEN a.defect_type = 'Catalog Error' then 'Catalog Error'
+    /*promotional execution errors */ 
+        	WHEN a.defect_type = 'Instore Price higher than advertised (Manual error)' then 'Promo Execution Error'
+        	WHEN a.defect_type = 'Instore Price lower than advertised (Manual error)' then 'Promo Execution Error'
+        	WHEN a.defect_type = 'Incorrect ESL messaging used' then 'Promo Execution Error'
+        	WHEN a.defect_type = 'Promo missing store Lister/Merchant' then 'Promo Execution Error'
+        	WHEN a.defect_type = 'Promo not created' then 'Promo Execution Error'
+        	WHEN a.defect_type = 'Promo Start or End date not accurate' then 'Promo Execution Error'
+            WHEN a.defect_type = 'PAWS Creation Error' then 'Promo Execution Error'
+            WHEN a.defect_type = 'PAWS ID not scheduled' then 'Promo Execution Error'
+    /*promotional planning errors */ 
+        	WHEN a.defect_type = 'Promotional Input Error' then 'Promo Planning Error'
+        	WHEN a.defect_type = 'Promo not requested'  then 'Promo Planning Error'
+        	WHEN a.defect_type = 'Instore Price higher than advertised (Other Pricing Driver)' then 'Promo Planning Error'
+        	WHEN a.defect_type = 'Instore Price lower than advertised (Other Pricing Driver)' then 'Promo Planning Error'
+        	WHEN a.defect_type = 'Instore Price higher/lower than advertised (Other Pricing Driver)' then 'Promo Planning Error'
+        	WHEN a.defect_type = 'ASIN NOP' then 'Promo Planning Error'
+        	WHEN a.defect_type = 'ASIN OOS' then 'Promo Planning Error'          
+        	WHEN a.defect_type = 'Overlapping Promotions' then 'Promo Planning Error' 
+            WHEN a.defect_type = 'Instore Signage Error' then 'Promo Planning Error' 
+/*non-controllable errors*/
+    		WHEN a.defect_type = 'Catalog Error' then 'Catalog Error'
+    		WHEN a.defect_type = 'Mis-ship' then 'Mis-ship'
+    		WHEN a.defect_type = 'ESL/Price Delay Error' then 'ESL/Price Delay Error'  
+    		WHEN a.defect_type = 'Tax Error' then 'Tax Error' 
+    		WHEN a.defect_type = 'Tech Error'  then 'Tech Error'      
+    		WHEN a.defect_type = 'Manual Markdown Request'  then 'Manual Markdown Request'
+/*Root Cause In Progress*/
+			 WHEN a.defect_type = 'Root Cause In Progress'  then 'Root Cause In Progress'
+    else 'Other' end as root_cause_bucket
+,case when a.sim_create_date between a.first_day_8_month_week_start and last_day_last_month_week_end then
+    case 
+        when mpr_month_today =1 then 
+            case when mpr_month_pre > 4 then 'Y' else 'N' end
+        when mpr_month_today =2 then 
+            case when mpr_month_pre > 5 then 'Y' 
+                when mpr_month_pre = 1 then 'Y' else 'N' end    
+        when mpr_month_today =3 then 
+            case when mpr_month_pre < 3 then 'Y' 
+                when mpr_month_pre >= 7 then 'Y' else 'N' end   
+        when mpr_month_today =4 then 
+            case when mpr_month_pre < 4 then 'Y' 
+                when mpr_month_pre >= 8 then 'Y' else 'N' end   
+        when mpr_month_today =5 then 
+            case when mpr_month_pre < 5 then 'Y' 
+                when mpr_month_pre >= 9 then 'Y' else 'N' end   
+        when mpr_month_today =6 then 
+            case when mpr_month_pre < 6 then 'Y' 
+                when mpr_month_pre >= 10 then 'Y' else 'N' end   
+        when mpr_month_today =7 then 
+            case when mpr_month_pre < 7 then 'Y' 
+                when mpr_month_pre >= 11 then 'Y' else 'N' end   
+        when mpr_month_today =8 then 
+            case when mpr_month_pre < 8 then 'Y' 
+                when mpr_month_pre = 12 then 'Y' else 'N' end
+        when mpr_month_pre between mpr_month_today-8 and mpr_month_today-1 then 'Y'
+        else 'N' end
+    when a.sim_create_date between a.ly_first_day_8_month_week_start and ly_last_day_last_month_week_end then
+    case 
+        when mpr_month_today =1 then 
+            case when mpr_month_pre > 4 then 'Y' else 'N' end
+        when mpr_month_today =2 then 
+            case when mpr_month_pre > 5 then 'Y' 
+                when mpr_month_pre = 1 then 'Y' else 'N' end    
+        when mpr_month_today =3 then 
+            case when mpr_month_pre < 3 then 'Y' 
+                when mpr_month_pre >= 7 then 'Y' else 'N' end   
+        when mpr_month_today =4 then 
+            case when mpr_month_pre < 4 then 'Y' 
+                when mpr_month_pre >= 8 then 'Y' else 'N' end   
+        when mpr_month_today =5 then 
+            case when mpr_month_pre < 5 then 'Y' 
+                when mpr_month_pre >= 9 then 'Y' else 'N' end   
+        when mpr_month_today =6 then 
+            case when mpr_month_pre < 6 then 'Y' 
+                when mpr_month_pre >= 10 then 'Y' else 'N' end   
+        when mpr_month_today =7 then 
+            case when mpr_month_pre < 7 then 'Y' 
+                when mpr_month_pre >= 11 then 'Y' else 'N' end   
+        when mpr_month_today =8 then 
+            case when mpr_month_pre < 8 then 'Y' 
+                when mpr_month_pre = 12 then 'Y' else 'N' end
+        when mpr_month_pre between mpr_month_today-8 and mpr_month_today-1 then 'Y'
+        else 'N' end
+    else 'N' end as last_8months_filter
+
+,case when a.sim_create_date between a.first_day_last_month_week_start and last_day_last_month_week_end then
+    case 
+    when mpr_month_today = 1 then
+        Case when mpr_month_pre = 12 then 'Y' else 'N' end
+    when mpr_month_pre = mpr_month_today-1 then 'Y' else 'N' end 
+    
+    when a.sim_create_date between a.ly_first_day_last_month_week_start and a.ly_last_day_last_month_week_end then
+    case 
+    when mpr_month_today = 1 then
+        Case when mpr_month_pre = 12 then 'Y' else 'N' end
+    when mpr_month_pre = mpr_month_today-1 then 'Y' else 'N' end         
+else 'N' end as last_month_filter
+
+,case when a.sim_create_date between first_day_prev_month_week_start and last_day_prev_month_week_end then
+    case 
+        when mpr_month_today = 1 then
+            case when mpr_month_pre = 11 then 'Y' else 'N' end
+        when mpr_month_today = 2 then
+            case when mpr_month_pre = 12 then 'Y' else 'N' end   
+        when mpr_month_pre = mpr_month_today-2 then 'Y' else 'N' end 
+        
+    when a.sim_create_date between a.ly_first_day_prev_month_week_start and a.ly_last_day_prev_month_week_end then
+     case 
+        when mpr_month_today = 1 then
+            case when mpr_month_pre = 11 then 'Y' else 'N' end
+        when mpr_month_today = 2 then
+            case when mpr_month_pre = 12 then 'Y' else 'N' end   
+        when mpr_month_pre = mpr_month_today-2 then 'Y' else 'N' end    
+
+else 'N' end as prev_month_filter
+,a.root_cause
+,a.defect_type
+, coalesce(replace(a.item_name,'"', 'in'), a.item_name) as item_name
+,a.last_modified_by
+from final_table a
+GROUP BY
+    a.sim
+    ,a.defect
+    ,a.sim_create_date
+    ,a.first_response_sla_days
+    ,a.assigned_date
+    ,a.sim_last_response_date
+    ,a.assigned_to_individual
+    ,a.requester_login
+    ,a.requester_name
+    ,a.status
+    ,a.resolved_date
+    ,a.resolved_by
+    ,a.resolved_filter
+    ,a.owner
+	,a.asin
+    ,a.f3_vertical
+    ,a.f3_category_group
+    ,a.brand_name
+    ,a.vendor
+    ,a.vendor_code
+    ,a."Vendor/Distributor"  
+    ,a.vendor_owner
+    ,a.vm
+    ,a.pricing_rules_url
+    ,a.site_id
+    ,a.current_price
+    ,a.price_start_date
+    ,a.pricing_driver
+    ,a.with_52_weeks
+    ,a.week_number
+    ,a.year
+    ,a.fscl_wk
+    ,a.last_week_filter
+    ,a.prev_week_filter
+    ,a.last_8weeks_filter
+    ,a.last_year_week_filter
+    ,a.prev_year_week_filter
+    ,a.mpr_month_pre
+    ,a.mpr_month_today
+    ,a.first_day_last_month_week_start
+    ,a.last_day_last_month_week_end    
+    ,a.first_day_prev_month_week_start
+    ,a.last_day_prev_month_week_end 
+    ,a.first_day_8_month_week_start
+    ,a.ly_first_day_8_month_week_start 
+    ,a.ly_last_day_last_month_week_end   
+    ,a.ly_first_day_last_month_week_start
+    ,a.ly_first_day_prev_month_week_start
+    ,a.ly_last_day_prev_month_week_end 
+    ,a.mpr_month_pre
+	,a.root_cause
+	,a.defect_type
+	,a.item_name
+	,a.last_modified_by
+;
