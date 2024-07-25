@@ -204,7 +204,7 @@ SELECT
     CASE 
         WHEN h.vendor_owner = 'Unmanaged' then f.f3_vm 
         WHEN h.vendor_owner = 'unmanaged' then f.f3_vm 
-        else COALESCE(h.vendor_owner,f.f3_vm) end as vendor_owner,
+        ELSE COALESCE(h.vendor_owner,f.f3_vm) end as vendor_owner,
     COALESCE(f.f3_vm,h.vendor_owner) as vm,  
     'https://t.corp.amazon.com/' + sim_issue_alias as sim,
     CASE 
@@ -332,7 +332,7 @@ SELECT
     current_price,
     TRUNC(current_start_time) AS price_start_date,
     pricing_driver,
-    trunc(a.create_date) as sim_create_date,
+    TRUNC(a.create_date) as sim_create_date,
 /*    CASE WHEN a.resolved_date is null then
         datediff(day,a.create_date,current_date) 
         ELSE datediff(day,a.create_date,a.resolved_date) 
