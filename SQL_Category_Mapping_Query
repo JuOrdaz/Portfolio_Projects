@@ -1,1 +1,23 @@
-
+select
+max(a.asin) as ASIN
+,max(a.f3_category_group) as VERTICAL
+,max(a.f3_category) as CATEGORY
+,max(a.f3_subcategory) as SUB_CATEGORY
+,case when d.vendor_owner = 'Unmanaged' then COALESCE(b.f3_vm, 'Unmanaged') else COALESCE(d.vendor_owner,b.f3_vm,'Unmanaged') end as vm
+,COALESCE(b.f3_vm,d.vendor_owner,'Unmanaged') as cm
+FROM andes.f3edw.dim_asin_v1 a
+LEFT JOIN andes."f3-selection-feast-prod".f3_category_mapping b ON 
+  a.f3_category_group = b.f3_category_group
+  AND a.f3_category = b.f3_category
+  AND a.f3_subcategory = b.f3_subcategory
+LEFT JOIN andes.f3rbi.f3_vendor_mapping c ON
+  a.asin = c.asin    
+LEFT JOIN andes.f3rbi.vm_ownership_matrix d ON
+  c.f3_vendor = d.vendor
+where a.region_id = 1
+and a.marketplace_id in ('1','884070040') -- modify marketplace here
+and a.asin in ('B000OV4FZG') -- modify asin here
+group by
+b.f3_vm,
+d.vendor_owner
+;
