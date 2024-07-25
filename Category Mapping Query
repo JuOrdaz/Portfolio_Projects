@@ -1,14 +1,14 @@
 /*
 Query to pull Vendor/Category Manager information by ASIN (product)
 
-Skills used: Joins, Group By, COALESCE, and CASE statements
+Skills used: Joins, Group By, COALESCE and CASE statements, and Aggregate Functions
 */
 
 SELECT
-max(a.asin) as ASIN
-,max(a.f3_category_group) as VERTICAL
-,max(a.f3_category) as CATEGORY
-,max(a.f3_subcategory) as SUB_CATEGORY
+MAX(a.asin) as ASIN
+,MAX(a.f3_category_group) as VERTICAL
+,MAX(a.f3_category) as CATEGORY
+,MAX(a.f3_subcategory) as SUB_CATEGORY
 ,CASE when d.vendor_owner = 'Unmanaged' THEN COALESCE(b.f3_vm, 'Unmanaged') ELSE COALESCE(d.vendor_owner,b.f3_vm,'Unmanaged') END as vm
 ,COALESCE(b.f3_vm,d.vendor_owner,'Unmanaged') as cm
 FROM andes.f3edw.dim_asin_v1 a
