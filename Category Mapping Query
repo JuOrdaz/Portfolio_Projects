@@ -1,16 +1,15 @@
 /*
-Covid 19 Data Exploration 
+Query to pull Vendor/Category Manager information by ASIN (product)
 
-Skills used: Joins, CTE's, Temp Tables, Windows Functions, Aggregate Functions, Creating Views, Converting Data Types
-
+Skills used: Joins, Group By, COALESCE, and CASE statements
 */
 
-select
+SELECT
 max(a.asin) as ASIN
 ,max(a.f3_category_group) as VERTICAL
 ,max(a.f3_category) as CATEGORY
 ,max(a.f3_subcategory) as SUB_CATEGORY
-,case when d.vendor_owner = 'Unmanaged' then COALESCE(b.f3_vm, 'Unmanaged') else COALESCE(d.vendor_owner,b.f3_vm,'Unmanaged') end as vm
+,CASE when d.vendor_owner = 'Unmanaged' THEN COALESCE(b.f3_vm, 'Unmanaged') ELSE COALESCE(d.vendor_owner,b.f3_vm,'Unmanaged') END as vm
 ,COALESCE(b.f3_vm,d.vendor_owner,'Unmanaged') as cm
 FROM andes.f3edw.dim_asin_v1 a
 LEFT JOIN andes."f3-selection-feast-prod".f3_category_mapping b ON 
@@ -21,10 +20,10 @@ LEFT JOIN andes.f3rbi.f3_vendor_mapping c ON
   a.asin = c.asin    
 LEFT JOIN andes.f3rbi.vm_ownership_matrix d ON
   c.f3_vendor = d.vendor
-where a.region_id = 1
-and a.marketplace_id in ('1','884070040') -- modify marketplace here
-and a.asin in ('B000OV4FZG') -- modify asin here
-group by
+WHERE a.region_id = 1
+AND a.marketplace_id in ('1','884070040') -- modify marketplace information here
+AND a.asin in ('B000OV4FZG') -- modify asin information here
+GROUP BY
 b.f3_vm,
 d.vendor_owner
 ;
