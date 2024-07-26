@@ -1,5 +1,5 @@
 /*
-Query to pull Vendor/Category Manager information by ASIN (product)
+Query used to pull Vendor/Category Manager information by ASIN (product)
 
 Skills used: Joins, Group By, COALESCE and CASE statements, and Aggregate Functions
 */
