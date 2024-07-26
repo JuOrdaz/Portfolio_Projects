@@ -800,8 +800,7 @@ ELSE 'N' end as last_month_filter
             CASE WHEN mpr_month_pre = 11 then 'Y' else 'N' end
         WHEN mpr_month_today = 2 then
             CASE WHEN mpr_month_pre = 12 then 'Y' else 'N' end   
-        WHEN mpr_month_pre = mpr_month_today-2 then 'Y' else 'N' end    
-
+        WHEN mpr_month_pre = mpr_month_today-2 then 'Y' else 'N' end
 ELSE 'N' end as prev_month_filter
 ,a.root_cause
 ,a.defect_type
