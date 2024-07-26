@@ -1,8 +1,7 @@
 /*
-Query used to explore and deep dive SIM Ticket KPI's for Tableau Dashboard 
+Query used to explore and deep dive SIM Ticket KPI's. Output is leveraged in our SIM Ticket Dashboard (Tableau)
 
 Skills used: Joins, Temp Tables, Windows Functions, Aggregate Functions, COALESCE and CASE statements
-
 */
 
 --Pulling site information and breaking it down by region
