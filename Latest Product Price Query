@@ -4,7 +4,7 @@ Query used to pull the latest product price by region
 Skills used: Joins, Temp Tables, Group By, and COALESCE statements
 */
 
-DROP TABLE if exists sites; -- temp table to filter for active AFG sites only
+DROP TABLE IF EXISTS; -- temp table to filter for active AFG sites only
 CREATE TEMP TABLE sites as 
 SELECT
 region_id
