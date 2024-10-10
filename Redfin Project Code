@@ -1,0 +1,100 @@
+-- Part A: using MySQL & CTE
+
+WITH referrer_types AS (
+SELECT 
+	login_id,
+	URL,
+	referrer,
+	visit_start,
+	`day`,
+	CASE
+		WHEN referrer IS NULL THEN 'Direct'
+		WHEN referrer LIKE '%email%' THEN 'Email'
+		WHEN referrer LIKE '%google%' THEN 'Organic' 
+        WHEN referrer LIKE '%yahoo%' THEN 'Organic'  
+        WHEN referrer LIKE '%bing%' THEN 'Organic'
+		ELSE 'Other'
+	END AS referrer_type
+FROM
+	weblogs
+WHERE
+	YEAR(`day`) >= '2020'
+)
+SELECT
+    DATE_FORMAT(`day`, '%Y-%m') AS month_year,
+    referrer_type,
+    COUNT(login_id) AS pageviews,
+    SUM(COUNT(login_id)) OVER (PARTITION BY referrer_type ORDER BY DATE_FORMAT(`day`, '%Y-%m')) AS cumulative_pageviews
+FROM
+    referrer_types
+GROUP BY
+    month_year, referrer_type
+ORDER BY
+    month_year, referrer_type;
+
+-- Part B: MySQL & CTE
+
+WITH first_visits AS (
+SELECT 
+	login_id,
+	MIN(day) AS first_visit_day
+FROM 
+	weblogs
+GROUP BY 
+	login_id
+)
+SELECT 
+    fv.login_id,
+    fv.first_visit_day,
+    w.referrer AS referrer_of_first_visit,
+    COUNT(DISTINCT w.URL) AS distinct_pages_on_first_day
+FROM 
+    first_visits fv
+JOIN 
+    weblogs w
+ON 
+    fv.login_id = w.login_id
+    AND fv.first_visit_day = w.day
+GROUP BY 
+    fv.login_id, fv.first_visit_day, w.referrer;
+    
+-- Part C: MySQL and CTE
+
+WITH weekly_traffic_2020 AS (
+SELECT
+	URL,
+	WEEK(`day`) AS week_num,
+	COUNT(login_id) AS pageviews
+FROM
+	weblogs
+WHERE
+	YEAR(`day`) = 2020
+GROUP BY
+	URL, week_num
+),
+weekly_traffic_2021 AS (
+    SELECT
+        URL,
+        WEEK(day) AS week_num,
+        COUNT(login_id) AS pageviews
+    FROM
+        weblogs
+    WHERE
+        YEAR(`day`) = 2021
+    GROUP BY
+        URL, week_num
+)
+SELECT
+    w21.URL,
+    w21.week_num,
+    w21.pageviews AS pageviews_2021,
+    w20.pageviews AS pageviews_2020,
+    ((w21.pageviews - w20.pageviews) / w20.pageviews) * 100 AS yoy_growth_percentage
+FROM
+    weekly_traffic_2021 w21
+LEFT JOIN
+    weekly_traffic_2020 w20
+ON
+    w21.URL = w20.URL AND w21.week_num = w20.week_num
+WHERE
+    w21.week_num <= WEEK(current_date());
