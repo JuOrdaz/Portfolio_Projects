@@ -1,7 +1,7 @@
 -- Part A: using MySQL & CTE
 
 WITH referrer_types AS (
-SELECT 
+SELECT
 	login_id,
 	URL,
 	referrer,
@@ -11,8 +11,8 @@ SELECT
 		WHEN referrer IS NULL THEN 'Direct'
 		WHEN referrer LIKE '%email%' THEN 'Email'
 		WHEN referrer LIKE '%google%' THEN 'Organic' 
-        WHEN referrer LIKE '%yahoo%' THEN 'Organic'  
-        WHEN referrer LIKE '%bing%' THEN 'Organic'
+        	WHEN referrer LIKE '%yahoo%' THEN 'Organic'  
+        	WHEN referrer LIKE '%bing%' THEN 'Organic'
 		ELSE 'Other'
 	END AS referrer_type
 FROM
@@ -32,15 +32,19 @@ GROUP BY
 ORDER BY
     month_year, referrer_type;
 
+
+
+
+
 -- Part B: MySQL & CTE
 
 WITH first_visits AS (
-SELECT 
+SELECT
 	login_id,
 	MIN(day) AS first_visit_day
-FROM 
+FROM
 	weblogs
-GROUP BY 
+GROUP BY
 	login_id
 )
 SELECT 
@@ -58,6 +62,10 @@ ON
 GROUP BY 
     fv.login_id, fv.first_visit_day, w.referrer;
     
+
+
+
+
 -- Part C: MySQL and CTE
 
 WITH weekly_traffic_2020 AS (
